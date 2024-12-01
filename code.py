@@ -1,5 +1,3 @@
-# SPDX-FileCopyrightText: 2021 ladyada for Adafruit Industries
-# SPDX-License-Identifier: MIT
 
 """
 This test will initialize the display using displayio and draw a solid green
@@ -18,6 +16,9 @@ import microcontroller
 import busio
 import usb_cdc
 import time
+import board
+from adafruit_seesaw import seesaw, rotaryio, digitalio
+
 # Support both 8.x.x and 9.x.x. Change when 8.x.x is discontinued as a stable release.
 try:
     from fourwire import FourWire
@@ -167,20 +168,18 @@ def try_to_read_usb_cdc_2():
             writeln("i love ksenia")
         elif(line == "up"):
             current_idx += 1
-            current_idx = show_by_idx(current_idx)
+            show_by_idx(current_idx)
         elif(line == "down"):
             current_idx -= 1
-            current_idx = show_by_idx(current_idx)
+            show_by_idx(current_idx)
         else:
             show_bmp(line)
 
 def show_by_idx(idx):
-    idx = 0 if idx > max_idx else idx
-    idx = max_idx if idx < 0 else idx
+    idx = idx % max_idx
 
     print(f"Showing index {idx}: {bmp_files[idx]}")
     show_bmp(bmp_files[idx])
-    return idx
 
 def writeln(msg):
     com.write(f"{msg}\r\n")
@@ -214,8 +213,42 @@ for file in os.listdir('/'):
 
 # show_bmp("world")
 
-current_idx = -1
-max_idx = len(bmp_files) - 1
+max_idx = len(bmp_files)
+print(f"Max Index: {max_idx}")
+
+i2c = board.I2C()  # uses board.SCL and board.SDA
+seesaw = seesaw.Seesaw(i2c, addr=0x36)
+
+seesaw_product = (seesaw.get_version() >> 16) & 0xFFFF
+print("Found product {}".format(seesaw_product))
+if seesaw_product != 4991:
+    print("Wrong firmware loaded?  Expected 4991")
+
+# Configure seesaw pin used to read knob button presses
+# The internal pull up is enabled to prevent floating input
+seesaw.pin_mode(24, seesaw.INPUT_PULLUP)
+button = digitalio.DigitalIO(seesaw, 24)
+
+button_held = False
+
+encoder = rotaryio.IncrementalEncoder(seesaw)
+last_position = encoder.position
 
 while True:
     try_to_read_usb_cdc_2()
+        # negate the position to make clockwise rotation positive
+    position = encoder.position
+
+    if position != last_position:
+        last_position = position
+        print(f"Current Position {position}")
+        show_by_idx(position)
+
+    if not button.value and not button_held:
+        button_held = True
+        print("Button pressed")
+
+    if button.value and button_held:
+        button_held = False
+        print("Button released")
+
