@@ -12,43 +12,36 @@ import microcontroller
 import usb_cdc
 import board
 from adafruit_seesaw import seesaw, rotaryio, digitalio
-from screen import ScreenX
+from screen import Screen
 
-
-screen = ScreenX()
-
-screen.write("Hello world")
+screen = Screen()
 
 
 
+def write_board_info():
+    screen.write(f"CircuitPython Version: {os.uname().version}")
+    screen.write(f"Machine Info: {os.uname().machine}")
+    screen.write(f"Board: {board.board_id}")
 
+    # Get the unique ID of the microcontroller
+    unique_id = microcontroller.cpu.uid
+    unique_id_str = ":".join("{:02x}".format(byte) for byte in unique_id)
 
-# def write_board_info():
-#     write(f"CircuitPython Version: {os.uname().version}")
-#     write(f"Machine Info: {os.uname().machine}")
-#     write(f"Board: {board.board_id}")
+    # Get the microcontroller name
+    #cpu_name = microcontroller.cpu.name
 
-#     # Get the unique ID of the microcontroller
-#     unique_id = microcontroller.cpu.uid
-#     unique_id_str = ":".join("{:02x}".format(byte) for byte in unique_id)
+    # Get the frequency of the CPU
+    cpu_frequency = microcontroller.cpu.frequency
 
-#     # Get the microcontroller name
-#     #cpu_name = microcontroller.cpu.name
+    # Print board-specific information
+    screen.write(f"Microcontroller Unique ID: {unique_id_str}")
+    #print("CPU Name:", cpu_name)
+    screen.write(f"CPU Frequency (Hz): {cpu_frequency}")
 
-#     # Get the frequency of the CPU
-#     cpu_frequency = microcontroller.cpu.frequency
-
-#     # Print board-specific information
-#     write(f"Microcontroller Unique ID: {unique_id_str}")
-#     #print("CPU Name:", cpu_name)
-#     write(f"CPU Frequency (Hz): {cpu_frequency}")
-
-# write("Hello World!")
-# write("")
-# #write_board_info()
-# write("Receiving...")
-# #write_to_file("hello world")
-
+screen.write("Hello World!")
+screen.write("")
+#write_board_info()
+screen.write("Receiving...")
 
 # #uart = busio.UART(board.TX, board.RX, baudrate=115200, timeout=0.1)
 # def try_to_read_data():

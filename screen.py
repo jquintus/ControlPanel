@@ -5,7 +5,7 @@ import displayio
 from adafruit_display_text import label
 from fourwire import FourWire
 
-class ScreenX:
+class Screen:
 
     def __init__(self):
         # Release any resources currently in use for the displays
