@@ -9,14 +9,13 @@ Pinouts are for the 2.4" TFT FeatherWing or Breakout with a Feather M4 or M0.
 import board
 import os
 import microcontroller
-import usb_cdc
 import board
 from adafruit_seesaw import seesaw, rotaryio, digitalio
 from screen import Screen
+from serial import Serial
 
 screen = Screen()
-
-
+com = Serial(screen)
 
 def write_board_info():
     screen.write(f"CircuitPython Version: {os.uname().version}")
@@ -43,54 +42,34 @@ screen.write("")
 #write_board_info()
 screen.write("Receiving...")
 
-# #uart = busio.UART(board.TX, board.RX, baudrate=115200, timeout=0.1)
-# def try_to_read_data():
-#     if uart.in_waiting > 0:
-#         print("reading data...")
-#         # Read incoming data
-#         data = uart.read().decode('utf-8').strip()
-#         if data:
-#             write(data)
+com.write("hello world ;) \r\n")
 
-# com = usb_cdc.data
-# com.timeout = 0.1
-# def try_to_read_usb_cdc():
-#     if com.in_waiting > 0:
-#         received_data = com.read(com.in_waiting)
-#         if received_data:
-#             print("boo")
-#             print("Received:", received_data)
-#             # Echo the received data back to the sender
-#             com.write(f"I received:  {received_data}")
-#             write(received_data)
+def try_to_read_usb_cdc_2():
+    global current_idx
+    line = com.readline()
+    if(line):
+        line = line.decode('utf-8').strip()
+        com.write(f"received: {line}\r\n")
+        screen.write(line)
+        line = line.lower()
+        if(line == "i love ksenia"):
+            show_heart()
+        elif(line == "clear"):
+            clear()
+        elif(line == "list"):
+            for file in bmp_files:
+                writeln(file[:-4])
 
-# com.write("hello world \r\n")
-# def try_to_read_usb_cdc_2():
-#     global current_idx
-#     line = com.readline()
-#     if(line):
-#         line = line.decode('utf-8').strip()
-#         com.write(f"received: {line}\r\n")
-#         write(line)
-#         line = line.lower()
-#         if(line == "i love ksenia"):
-#             show_heart()
-#         elif(line == "clear"):
-#             clear()
-#         elif(line == "list"):
-#             for file in bmp_files:
-#                 writeln(file[:-4])
-
-#             writeln("heart")
-#             writeln("i love ksenia")
-#         elif(line == "up"):
-#             current_idx += 1
-#             show_by_idx(current_idx)
-#         elif(line == "down"):
-#             current_idx -= 1
-#             show_by_idx(current_idx)
-#         else:
-#             show_bmp(line)
+            writeln("heart")
+            writeln("i love ksenia")
+        elif(line == "up"):
+            current_idx += 1
+            show_by_idx(current_idx)
+        elif(line == "down"):
+            current_idx -= 1
+            show_by_idx(current_idx)
+        else:
+            show_bmp(line)
 
 # def show_by_idx(idx):
 #     idx = idx % max_idx
