@@ -71,43 +71,28 @@ def try_to_read_usb_cdc_2():
         else:
             show_bmp(line)
 
-# def show_by_idx(idx):
-#     idx = idx % max_idx
+def show_by_idx(idx):
+    idx = idx % max_idx
 
-#     print(f"Showing index {idx}: {bmp_files[idx]}")
-#     show_bmp(bmp_files[idx])
+    print(f"Showing index {idx}: {bmp_files[idx]}")
+    show_bmp(bmp_files[idx])
 
-# def writeln(msg):
-#     com.write(f"{msg}\r\n")
+def show_heart():
+    show_bmp("heart")
 
-# def show_heart():
-#     show_bmp("heart")
+def show_bmp(bmp):
+    filename = bmp if bmp[-4:] == ".bmp" else f"{bmp}.bmp"
+    if filename in bmp_files:
+        screen.show_bmp(filename)
 
-# def show_bmp(bmp):
-#     filename = bmp if bmp[-4:] == ".bmp" else f"{bmp}.bmp"
-#     if filename in bmp_files:
-#         # Setup the file as the bitmap data source
-#         bitmap = displayio.OnDiskBitmap(filename)
-#         # Create a TileGrid to hold the bitmap
-#         tile_grid = displayio.TileGrid(bitmap, pixel_shader=bitmap.pixel_shader)
+# List to store .bmp files
+bmp_files = []
 
-#         # Create a Group to hold the TileGrid
-#         group = displayio.Group()
+for file in os.listdir('/'):
+    if file.endswith('.bmp'):
+        bmp_files.append(file)
 
-#         # Add the TileGrid to the Group
-#         group.append(tile_grid)
-
-#         # Add the Group to the Display
-#         display.root_group = group
-
-# # List to store .bmp files
-# bmp_files = []
-
-# for file in os.listdir('/'):
-#     if file.endswith('.bmp'):
-#         bmp_files.append(file)
-
-# # show_bmp("world")
+show_bmp("world")
 
 # max_idx = len(bmp_files)
 # print(f"Max Index: {max_idx}")
@@ -148,3 +133,5 @@ def try_to_read_usb_cdc_2():
 #         button_held = False
 #         print("Button released")
 
+while True:
+    pass

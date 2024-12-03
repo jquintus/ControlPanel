@@ -80,3 +80,18 @@ class Screen:
 
         # Show it
         self.display.root_group = text_area
+
+    def show_bmp(self, filename):
+        # Setup the file as the bitmap data source
+        bitmap = displayio.OnDiskBitmap(filename)
+        # Create a TileGrid to hold the bitmap
+        tile_grid = displayio.TileGrid(bitmap, pixel_shader=bitmap.pixel_shader)
+
+        # Create a Group to hold the TileGrid
+        group = displayio.Group()
+
+        # Add the TileGrid to the Group
+        group.append(tile_grid)
+
+        # Add the Group to the Display
+        self.display.root_group = group
