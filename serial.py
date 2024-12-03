@@ -24,5 +24,8 @@ class Serial:
     def write(self, msg):
         self.com.write(msg)
 
+    def writeln(self, msg):
+        self.com.write(f"{msg}\r\n")
+
     def write_line(self, msg):
         self.com.write(f"{msg}\r\n")

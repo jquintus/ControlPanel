@@ -1,4 +1,3 @@
-
 import board
 import os
 import microcontroller
@@ -13,7 +12,6 @@ com = Serial(screen)
 arcade = Arcade()
 button_held = False
 last_position = arcade.encoder_position
-
 
 def write_board_info():
     screen.write(f"CircuitPython Version: {os.uname().version}")
@@ -43,7 +41,6 @@ screen.write("Receiving...")
 com.write("hello world ;) \r\n")
 
 def try_to_read_usb_cdc_2():
-    global current_idx
     line = com.read_line()
     if(line):
         line = line.decode('utf-8').strip()
@@ -53,19 +50,13 @@ def try_to_read_usb_cdc_2():
         if(line == "i love ksenia"):
             show_heart()
         elif(line == "clear"):
-            clear()
+            screen.clear()
         elif(line == "list"):
             for file in bmp_files:
-                writeln(file[:-4])
+                com.writeln(file[:-4])
 
-            writeln("heart")
-            writeln("i love ksenia")
-        elif(line == "up"):
-            current_idx += 1
-            show_by_idx(current_idx)
-        elif(line == "down"):
-            current_idx -= 1
-            show_by_idx(current_idx)
+            com.writeln("heart")
+            com.writeln("i love ksenia")
         else:
             show_bmp(line)
 
@@ -83,12 +74,7 @@ def show_bmp(bmp):
     if filename in bmp_files:
         screen.show_bmp(filename)
 
-# List to store .bmp files
-bmp_files = []
-
-for file in os.listdir('/'):
-    if file.endswith('.bmp'):
-        bmp_files.append(file)
+bmp_files = [file for file in os.listdir('/') if file.endswith('.bmp')]
 
 show_bmp("world")
 
