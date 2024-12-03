@@ -1,21 +1,19 @@
 
-"""
-This test will initialize the display using displayio and draw a solid green
-background, a smaller purple rectangle, and some yellow text. All drawing is done
-using native displayio modules.
-
-Pinouts are for the 2.4" TFT FeatherWing or Breakout with a Feather M4 or M0.
-"""
 import board
 import os
 import microcontroller
 import board
-from adafruit_seesaw import seesaw, rotaryio, digitalio
 from screen import Screen
 from serial import Serial
+from arcade import Arcade
 
 screen = Screen()
 com = Serial(screen)
+
+arcade = Arcade()
+button_held = False
+last_position = arcade.encoder_position
+
 
 def write_board_info():
     screen.write(f"CircuitPython Version: {os.uname().version}")
@@ -46,7 +44,7 @@ com.write("hello world ;) \r\n")
 
 def try_to_read_usb_cdc_2():
     global current_idx
-    line = com.readline()
+    line = com.read_line()
     if(line):
         line = line.decode('utf-8').strip()
         com.write(f"received: {line}\r\n")
@@ -94,44 +92,23 @@ for file in os.listdir('/'):
 
 show_bmp("world")
 
-# max_idx = len(bmp_files)
-# print(f"Max Index: {max_idx}")
-
-# i2c = board.I2C()  # uses board.SCL and board.SDA
-# seesaw = seesaw.Seesaw(i2c, addr=0x36)
-
-# seesaw_product = (seesaw.get_version() >> 16) & 0xFFFF
-# print("Found product {}".format(seesaw_product))
-# if seesaw_product != 4991:
-#     print("Wrong firmware loaded?  Expected 4991")
-
-# # Configure seesaw pin used to read knob button presses
-# # The internal pull up is enabled to prevent floating input
-# seesaw.pin_mode(24, seesaw.INPUT_PULLUP)
-# button = digitalio.DigitalIO(seesaw, 24)
-
-# button_held = False
-
-# encoder = rotaryio.IncrementalEncoder(seesaw)
-# last_position = encoder.position
-
-# while True:
-#     try_to_read_usb_cdc_2()
-#         # negate the position to make clockwise rotation positive
-#     position = encoder.position
-
-#     if position != last_position:
-#         last_position = position
-#         print(f"Current Position {position}")
-#         show_by_idx(position)
-
-#     if not button.value and not button_held:
-#         button_held = True
-#         print("Button pressed")
-
-#     if button.value and button_held:
-#         button_held = False
-#         print("Button released")
+max_idx = len(bmp_files)
+print(f"Max Index: {max_idx}")
 
 while True:
-    pass
+    try_to_read_usb_cdc_2()
+        # negate the position to make clockwise rotation positive
+    position = arcade.encoder_position
+
+    if position != last_position:
+        last_position = position
+        print(f"Current Position {position}")
+        show_by_idx(position)
+
+    if not arcade.button_value and not button_held:
+        button_held = True
+        print("Button pressed")
+
+    if arcade.button_value and button_held:
+        button_held = False
+        print("Button released")
