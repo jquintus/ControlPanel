@@ -1,11 +1,10 @@
-import board
 import os
-import microcontroller
-import board
 from screen import Screen
 from serial import Serial
 from arcade import Arcade
+from board_details import BoardDetails
 
+bd = BoardDetails()
 screen = Screen()
 com = Serial(screen)
 
@@ -13,32 +12,13 @@ arcade = Arcade()
 button_held = False
 last_position = arcade.encoder_position
 
-def write_board_info():
-    screen.write(f"CircuitPython Version: {os.uname().version}")
-    screen.write(f"Machine Info: {os.uname().machine}")
-    screen.write(f"Board: {board.board_id}")
-
-    # Get the unique ID of the microcontroller
-    unique_id = microcontroller.cpu.uid
-    unique_id_str = ":".join("{:02x}".format(byte) for byte in unique_id)
-
-    # Get the microcontroller name
-    #cpu_name = microcontroller.cpu.name
-
-    # Get the frequency of the CPU
-    cpu_frequency = microcontroller.cpu.frequency
-
-    # Print board-specific information
-    screen.write(f"Microcontroller Unique ID: {unique_id_str}")
-    #print("CPU Name:", cpu_name)
-    screen.write(f"CPU Frequency (Hz): {cpu_frequency}")
-
 screen.write("Hello World!")
 screen.write("")
-#write_board_info()
-screen.write("Receiving...")
 
 com.write("hello world ;) \r\n")
+com.write_lines(bd.get_details())
+screen.write("Receiving...")
+
 
 def try_to_read_usb_cdc_2():
     line = com.read_line()

@@ -20,7 +20,6 @@ class Serial:
     def read_line(self):
         return self.com.readline()
 
-
     def write(self, msg):
         self.com.write(msg)
 
@@ -29,3 +28,8 @@ class Serial:
 
     def write_line(self, msg):
         self.com.write(f"{msg}\r\n")
+
+    def write_lines(self, lines):
+        msg = "\r\n".join(lines) + "\r\n"
+        self.write(msg)
+
