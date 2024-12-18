@@ -78,3 +78,12 @@ while True:
     if arcade.encoder_pressed and button_held:
         button_held = False
         print("Button released")
+        
+    if arcade.get_button_value(0):
+        show_bmp(bmp_files[0])
+    if arcade.get_button_value(1):
+        show_bmp(bmp_files[1])
+    if arcade.get_button_value(2):
+        show_bmp(bmp_files[2])
+    if arcade.get_button_value(3):
+        show_bmp(bmp_files[3])
