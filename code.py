@@ -71,10 +71,10 @@ while True:
         print(f"Current Position {position}")
         show_by_idx(position)
 
-    if not arcade.button_value and not button_held:
+    if not arcade.encoder_pressed and not button_held:
         button_held = True
         print("Button pressed")
 
-    if arcade.button_value and button_held:
+    if arcade.encoder_pressed and button_held:
         button_held = False
         print("Button released")
