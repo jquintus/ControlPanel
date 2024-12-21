@@ -44,6 +44,27 @@ class MockButton:
         """
         return False
 
+class MockLed:
+    """
+    A stubbed out LED so we can create an LED Button w/out an LED
+    """
+    def __init__(self):
+        self._value = False
+
+    @property
+    def value(self):
+        """
+        Get the value of the LED
+        """
+        return self._value
+
+    @value.setter
+    def value(self, value):
+        """
+        Set the value of the LED
+        """
+        self._value = value
+
 class LedButton:
     """
     This class provides a wrapper for the Button and LED provided by Adafruit.
@@ -108,13 +129,13 @@ class Arcade:
 
                 encoder = rotaryio.IncrementalEncoder(ss)
 
-                return (encoder, encoder_button)
-            except (AttributeError, ValueError) as e:
+                button = LedButton(encoder_button, MockLed, 0)
+                return (encoder, button)
+            except (AttributeError, ValueError, OSError) as e:
                 print(f"Could not load encoder {e}")
-
-            encoder = MockEncoder()
-            encoder_button = MockButton(0)
-            return (encoder, encoder_button)
+                encoder = MockEncoder()
+                encoder_button = MockButton(0)
+                return (encoder, encoder_button)
 
         i2c = __load_board()
         (self.encoder1, self.encoder1_button) = __load_encoder(i2c, self._LEFT_ENCODER_ADDR)

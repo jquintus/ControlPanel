@@ -18,7 +18,8 @@ screen = Screen()
 com = Serial(screen)
 
 arcade = Arcade()
-button_held = False # pylint: disable=invalid-name
+encoder_button_1_pressed = False # pylint: disable=invalid-name
+encoder_button_2_pressed = False # pylint: disable=invalid-name
 last1_position = arcade.encoder1_position
 last2_position = arcade.encoder2_position
 
@@ -92,13 +93,23 @@ while True:
         print(f"Current Position {position2}")
         show_by_idx(position2)
 
-    if not arcade.encoder1_pressed and not button_held:
-        button_held = True # pylint: disable=invalid-name
-        print("Button pressed")
+    # Check Encoder 1 Pressed
+    if arcade.encoder1_pressed and not encoder_button_1_pressed:
+        encoder_button_1_pressed = True # pylint: disable=invalid-name
+        screen.write("Pressed...")
 
-    if arcade.encoder1_pressed and button_held:
-        button_held = False # pylint: disable=invalid-name
-        print("Button released")
+    # Check Encoder 1 Released
+    if not arcade.encoder1_pressed and encoder_button_1_pressed:
+        encoder_button_1_pressed = False # pylint: disable=invalid-name
+
+    # Check Encoder 2 Pressed
+    if arcade.encoder2_pressed and not encoder_button_2_pressed:
+        encoder_button_2_pressed = True # pylint: disable=invalid-name
+        screen.clear()
+
+    # Check Encoder 2 Released
+    if not arcade.encoder2_pressed and encoder_button_2_pressed:
+        encoder_button_2_pressed = False # pylint: disable=invalid-name
 
     for i in range(15):
         if arcade.get_button_value(i):
