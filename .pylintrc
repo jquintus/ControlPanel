@@ -1,2 +1,3 @@
 [MESSAGES CONTROL]
+# Disabling warnings because they don't make sense in the CircuitPython environment
 disable=no-name-in-module, import-error
