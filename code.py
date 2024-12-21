@@ -4,6 +4,9 @@ This is the entry point to the code.
 Author: Josh Quintus
 Date: December 2024
 """
+
+# import i2c_scanner #only uncomment this when you need to scan for connected devices.
+
 import os
 from screen import Screen
 from serial import Serial

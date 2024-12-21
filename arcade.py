@@ -34,8 +34,8 @@ class MockButton:
 
     Ignore the too-few-public-methods error because this is being used as a stub
     """
-    def __init__(self):
-        pass
+    def __init__(self, idx):
+        self.idx = idx
 
     @property
     def value(self):
@@ -52,16 +52,21 @@ class LedButton:
 
     Ignore the too-few-public-methods error because this is being used as a stub
     """
-    def __init__(self, button, led):
+    def __init__(self, button, led, addr, idx):
         self.button = button
         self.led = led
+        self.addr = addr
+        self.idx = idx
 
     @property
     def value(self):
         """
         Whether or not the button is pressed
         """
-        return not self.button.value
+        value = not self.button.value
+        if value:
+            print (f"Button {hex(self.addr)}{self.idx} pressed")
+        return value
 
 class Arcade:
     """
@@ -70,20 +75,20 @@ class Arcade:
     _LEFT_ENCODER_ADDR = 0x37
     _RIGHT_ENCODER_ADDR = 0x38
 
-    _BUTTONS_1_ADDR = 0x42
-    _BUTTONS_2_ADDR = 0x3A
+    _BUTTONS_1_ADDR = 0x3D
+    _BUTTONS_2_ADDR = 0x42
     _BUTTONS_3_ADDR = 0x3C
-    _BUTTONS_4_ADDR = 0x3D
+    _BUTTONS_4_ADDR = 0x3A
 
     def __init__(self):
         i2c = self.__load_board()
         (self.encoder1, self.encoder1_button) = self.__load_encoder(i2c, self._LEFT_ENCODER_ADDR)
         (self.encoder2, self.encoder2_button) = self.__load_encoder(i2c, self._RIGHT_ENCODER_ADDR)
 
-        b1 = self.__load_buttons(i2c, self._BUTTONS_1_ADDR)
-        b2 = self.__load_buttons(i2c, self._BUTTONS_2_ADDR)
-        b3 = self.__load_buttons(i2c, self._BUTTONS_3_ADDR)
-        b4 = self.__load_buttons(i2c, self._BUTTONS_4_ADDR)
+        b1 = self.__load_buttons(i2c, self._BUTTONS_1_ADDR, 0)
+        b2 = self.__load_buttons(i2c, self._BUTTONS_2_ADDR, 1)
+        b3 = self.__load_buttons(i2c, self._BUTTONS_3_ADDR, 2)
+        b4 = self.__load_buttons(i2c, self._BUTTONS_4_ADDR, 3)
         self.buttons = b1 + b2 + b3 + b4
 
     def __load_board(self):
@@ -94,24 +99,24 @@ class Arcade:
             print(e)
             return None
 
-    def __load_buttons(self, i2c, addr):
-        def init_button(idx, arcade_qt, button_pin, led_pin):
-            print(f"Initializing button {idx}...")
+    def __load_buttons(self, i2c, addr, button_offset):
+        def init_button(addr, idx, arcade_qt, button_pin, led_pin):
+            print(f"Initializing button {hex(addr)}:{idx}...")
             button = digitalio.DigitalIO(arcade_qt, button_pin)
             button.direction = board_digitalio.Direction.INPUT
             button.pull = board_digitalio.Pull.UP
 
             print("Initializing led...")
             led = digitalio.DigitalIO(arcade_qt, led_pin)
-            return LedButton(button, led)
+            return LedButton(button, led, addr, idx)
 
         try:
             ss = seesaw.Seesaw(i2c, addr)
 
-            b1 = init_button(1, ss, button_pin=2,  led_pin=1)
-            b2 = init_button(2, ss, button_pin=20, led_pin=0)
-            b3 = init_button(3, ss, button_pin=19, led_pin=13)
-            b4 = init_button(4, ss, button_pin=18, led_pin=12)
+            b1 = init_button(addr, button_offset * 4 + 1, ss, button_pin=2,  led_pin=1)
+            b2 = init_button(addr, button_offset * 4 + 2, ss, button_pin=20, led_pin=0)
+            b3 = init_button(addr, button_offset * 4 + 3, ss, button_pin=19, led_pin=13)
+            b4 = init_button(addr, button_offset * 4 + 4, ss, button_pin=18, led_pin=12)
 
             return [
                 b1,
@@ -123,10 +128,10 @@ class Arcade:
         except (AttributeError, ValueError) as e:
             print(f"could not load buttons: {e}")
             return [
-                MockButton(),
-                MockButton(),
-                MockButton(),
-                MockButton(),
+                MockButton(button_offset * 4 + 1),
+                MockButton(button_offset * 4 + 2),
+                MockButton(button_offset * 4 + 3),
+                MockButton(button_offset * 4 + 4),
             ]
 
 
@@ -152,7 +157,7 @@ class Arcade:
             print(f"Could not load encoder {e}")
 
             encoder = MockEncoder()
-            encoder_button = MockButton()
+            encoder_button = MockButton(0)
             return (encoder, encoder_button)
 
     @property
