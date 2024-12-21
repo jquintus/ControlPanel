@@ -67,11 +67,24 @@ class Arcade:
     """
     The Arcade class is the wrapper around the button and knob hardware.
     """
+    _LEFT_ENCODER_ADDR = 0x37
+    _RIGHT_ENCODER_ADDR = 0x38
+
+    _BUTTONS_1_ADDR = 0x42
+    _BUTTONS_2_ADDR = 0x44
+    _BUTTONS_3_ADDR = 0x48
+    _BUTTONS_4_ADDR = 0x49
+
     def __init__(self):
         i2c = self.__load_board()
-        (self.encoder1, self.encoder1_button) = self.__load_encoder(i2c, 0x37)
-        (self.encoder2, self.encoder2_button) = self.__load_encoder(i2c, 0x38)
-        self.buttons = self.__load_buttons(i2c, addr=0x3A)
+        (self.encoder1, self.encoder1_button) = self.__load_encoder(i2c, self._LEFT_ENCODER_ADDR)
+        (self.encoder2, self.encoder2_button) = self.__load_encoder(i2c, self._RIGHT_ENCODER_ADDR)
+
+        b1 = self.__load_buttons(i2c, self._BUTTONS_1_ADDR)
+        b2 = self.__load_buttons(i2c, self._BUTTONS_2_ADDR)
+        b3 = self.__load_buttons(i2c, self._BUTTONS_3_ADDR)
+        b4 = self.__load_buttons(i2c, self._BUTTONS_4_ADDR)
+        self.buttons = b1 + b2 + b3 + b4
 
     def __load_board(self):
         try:
