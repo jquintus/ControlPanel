@@ -71,9 +71,9 @@ class Arcade:
     _RIGHT_ENCODER_ADDR = 0x38
 
     _BUTTONS_1_ADDR = 0x42
-    _BUTTONS_2_ADDR = 0x44
-    _BUTTONS_3_ADDR = 0x48
-    _BUTTONS_4_ADDR = 0x49
+    _BUTTONS_2_ADDR = 0x3A
+    _BUTTONS_3_ADDR = 0x3C
+    _BUTTONS_4_ADDR = 0x3D
 
     def __init__(self):
         i2c = self.__load_board()
@@ -184,7 +184,8 @@ class Arcade:
         This behavior allows for easier testing of the code w/out having
         to have all of the hardware attached.
         """
-        if idx > 3 or idx < 0:
+        if idx > len(self.buttons) or idx < 0:
+            print(f"Button {idx} does not exist")
             return False
 
         return self.buttons[idx].value
