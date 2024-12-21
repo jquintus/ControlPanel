@@ -52,10 +52,9 @@ class LedButton:
 
     Ignore the too-few-public-methods error because this is being used as a stub
     """
-    def __init__(self, button, led, addr, idx):
+    def __init__(self, button, led, idx):
         self.button = button
         self.led = led
-        self.addr = addr
         self.idx = idx
 
     @property
@@ -65,7 +64,7 @@ class LedButton:
         """
         value = not self.button.value
         if value:
-            print (f"Button {hex(self.addr)}{self.idx} pressed")
+            print (f"Button {self.idx} pressed")
         return value
 
 class Arcade:
@@ -75,65 +74,80 @@ class Arcade:
     _LEFT_ENCODER_ADDR = 0x37
     _RIGHT_ENCODER_ADDR = 0x38
 
-    _BUTTONS_1_ADDR = 0x3D
-    _BUTTONS_2_ADDR = 0x42
+    _BUTTONS_1_ADDR = 0x42
+    _BUTTONS_2_ADDR = 0x3D
     _BUTTONS_3_ADDR = 0x3C
-    _BUTTONS_4_ADDR = 0x3A
+    _BUTTONS_4_ADDR = 0x3A # Red buttons
 
     def __init__(self):
-        i2c = self.__load_board()
+        def __load_board():
+            try:
+                i2c = board.I2C()  # uses board.SCL and board.SDA
+                return i2c
+            except RuntimeError as e:
+                print(e)
+                return None
+
+        i2c = __load_board()
         (self.encoder1, self.encoder1_button) = self.__load_encoder(i2c, self._LEFT_ENCODER_ADDR)
         (self.encoder2, self.encoder2_button) = self.__load_encoder(i2c, self._RIGHT_ENCODER_ADDR)
+        self.buttons = self.__load_all_buttons(i2c)
 
-        b1 = self.__load_buttons(i2c, self._BUTTONS_1_ADDR, 0)
-        b2 = self.__load_buttons(i2c, self._BUTTONS_2_ADDR, 1)
-        b3 = self.__load_buttons(i2c, self._BUTTONS_3_ADDR, 2)
-        b4 = self.__load_buttons(i2c, self._BUTTONS_4_ADDR, 3)
-        self.buttons = b1 + b2 + b3 + b4
+    def __load_all_buttons(self, i2c):
+        def __load_button_breakout(i2c, addr):
+            try:
+                ss = seesaw.Seesaw(i2c, addr)
+                return ss
 
-    def __load_board(self):
-        try:
-            i2c = board.I2C()  # uses board.SCL and board.SDA
-            return i2c
-        except RuntimeError as e:
-            print(e)
-            return None
+            except (AttributeError, ValueError) as e:
+                print(f"could not load breakout at {hex(addr)}: {e}")
+                return None
 
-    def __load_buttons(self, i2c, addr, button_offset):
-        def init_button(addr, idx, arcade_qt, button_pin, led_pin):
-            print(f"Initializing button {hex(addr)}:{idx}...")
-            button = digitalio.DigitalIO(arcade_qt, button_pin)
-            button.direction = board_digitalio.Direction.INPUT
-            button.pull = board_digitalio.Pull.UP
+        def init_button(idx, ss, pin_tuple):
+            (button_pin, led_pin) = pin_tuple
+            if ss:
+                print(f"Initializing button {idx}...")
+                button = digitalio.DigitalIO(ss, button_pin)
+                button.direction = board_digitalio.Direction.INPUT
+                button.pull = board_digitalio.Pull.UP
 
-            print("Initializing led...")
-            led = digitalio.DigitalIO(arcade_qt, led_pin)
-            return LedButton(button, led, addr, idx)
+                print("Initializing led...")
+                led = digitalio.DigitalIO(ss, led_pin)
+                return LedButton(button, led, idx)
+            else:
+                return MockButton(idx)
 
-        try:
-            ss = seesaw.Seesaw(i2c, addr)
+        ss1 = __load_button_breakout(i2c, self._BUTTONS_1_ADDR)
+        ss2 = __load_button_breakout(i2c, self._BUTTONS_2_ADDR)
+        ss3 = __load_button_breakout(i2c, self._BUTTONS_3_ADDR)
+        ss4 = __load_button_breakout(i2c, self._BUTTONS_4_ADDR)
 
-            b1 = init_button(addr, button_offset * 4 + 1, ss, button_pin=2,  led_pin=1)
-            b2 = init_button(addr, button_offset * 4 + 2, ss, button_pin=20, led_pin=0)
-            b3 = init_button(addr, button_offset * 4 + 3, ss, button_pin=19, led_pin=13)
-            b4 = init_button(addr, button_offset * 4 + 4, ss, button_pin=18, led_pin=12)
+        pin_tuples = [ (18, 12), (19, 13), (20, 0), (2,  1), ]
 
-            return [
-                b1,
-                b2,
-                b3,
-                b4,
-            ]
+        buttons = [
+            # Row 1
+            init_button( 1, ss4, pin_tuples[3]),
+            init_button( 2, ss1, pin_tuples[0]),
+            init_button( 3, ss1, pin_tuples[1]),
+            init_button( 4, ss1, pin_tuples[2]),
+            init_button( 5, ss1, pin_tuples[3]),
 
-        except (AttributeError, ValueError) as e:
-            print(f"could not load buttons: {e}")
-            return [
-                MockButton(button_offset * 4 + 1),
-                MockButton(button_offset * 4 + 2),
-                MockButton(button_offset * 4 + 3),
-                MockButton(button_offset * 4 + 4),
-            ]
+            # Row 2
+            init_button( 6, ss4, pin_tuples[2]),
+            init_button( 7, ss2, pin_tuples[0]),
+            init_button( 8, ss2, pin_tuples[1]),
+            init_button( 9, ss2, pin_tuples[2]),
+            init_button(10, ss2, pin_tuples[3]),
 
+            # Row 3
+            init_button(11, ss4, pin_tuples[1]),
+            init_button(12, ss3, pin_tuples[0]),
+            init_button(13, ss3, pin_tuples[1]),
+            init_button(14, ss3, pin_tuples[2]),
+            init_button(15, ss3, pin_tuples[3]),
+        ]
+
+        return buttons
 
     def __load_encoder(self, i2c, addr):
         try:
@@ -189,7 +203,7 @@ class Arcade:
         This behavior allows for easier testing of the code w/out having
         to have all of the hardware attached.
         """
-        if idx > len(self.buttons) or idx < 0:
+        if idx >= len(self.buttons) or idx < 0:
             print(f"Button {idx} does not exist")
             return False
 
