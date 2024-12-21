@@ -97,7 +97,7 @@ class Arcade:
                 seesaw_product = (ss.get_version() >> 16) & 0xFFFF
                 if seesaw_product != 4991:
                     print(
-                        f"Problem loading rotary encoder. Wrong firmware loaded? "
+                        "Problem loading rotary encoder. Wrong firmware loaded? " +
                         f"Expected 4991; got {seesaw_product}"
                     )
 
@@ -129,7 +129,7 @@ class Arcade:
                 seesaw_product = (ss.get_version() >> 16) & 0xFFFF
                 if seesaw_product != 5296:
                     print(
-                        f"Problem loading button breakout. Wrong firmware loaded? "
+                        "Problem loading button breakout. Wrong firmware loaded? " +
                         f"Expected 5296; got {seesaw_product}"
                     )
 
