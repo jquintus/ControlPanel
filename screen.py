@@ -41,7 +41,7 @@ class Screen:
     def write(self, text):
         """
         Append the line of text to the bottom of the screen.
-        
+
         If the screen is full of text, earlier text will pop off.
         """
         if not isinstance(text, str):

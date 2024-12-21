@@ -96,7 +96,10 @@ class Arcade:
 
                 seesaw_product = (ss.get_version() >> 16) & 0xFFFF
                 if seesaw_product != 4991:
-                    print(f"Problem loading rotary encoder. Wrong firmware loaded?  Expected 4991; got {seesaw_product}")
+                    print(
+                        f"Problem loading rotary encoder. Wrong firmware loaded? "
+                        f"Expected 4991; got {seesaw_product}"
+                    )
 
                 # Configure seesaw pin used to read knob button presses
                 # The internal pull up is enabled to prevent floating input
@@ -125,7 +128,10 @@ class Arcade:
                 ss = seesaw.Seesaw(i2c, addr)
                 seesaw_product = (ss.get_version() >> 16) & 0xFFFF
                 if seesaw_product != 5296:
-                    print(f"Problem loading button breakout. Wrong firmware loaded?  Expected 5296; got {seesaw_product}")
+                    print(
+                        f"Problem loading button breakout. Wrong firmware loaded? "
+                        f"Expected 5296; got {seesaw_product}"
+                    )
 
                 return ss
 
@@ -135,9 +141,10 @@ class Arcade:
 
         def init_button(idx, ss, pin_tuple):
             (button_pin, led_pin) = pin_tuple
+            # pylint: disable=no-else-return
             if ss:
                 print(f"Initializing LED Button {idx}...")
-                
+
                 # Initialize Button
                 button = digitalio.DigitalIO(ss, button_pin)
                 button.direction = board_digitalio.Direction.INPUT

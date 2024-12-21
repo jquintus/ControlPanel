@@ -60,9 +60,9 @@ class Serial:
     def write_lines(self, lines):
         """
         Write a series of lines each terminated with a \r\n to the serial connection.
-        
+
         lines is a list.
-        
+
         We add the \r\n after each entry in the list. We perform this in a single call.
         """
         msg = "\r\n".join(lines) + "\r\n"
