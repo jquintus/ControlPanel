@@ -102,5 +102,4 @@ while True:
 
     for i in range(15):
         if arcade.get_button_value(i):
-            #show_by_idx(i)
-            pass
+            show_by_idx(i)
