@@ -63,6 +63,7 @@ class LedButton:
         Whether or not the button is pressed
         """
         value = not self.button.value
+        self.led.value = value
         if value:
             print (f"Button {self.idx} pressed")
         return value
