@@ -19,7 +19,7 @@ features light up arcade buttons that are a whole lot of fun to smash.
 - TFT FeatherWing - 2.4" 320x240 Touchscreen v1
   - [Product Page](https://www.adafruit.com/product/3315)
   - [Learn Page](https://learn.adafruit.com/adafruit-2-4-tft-touch-screen-featherwing)
-- Arcade Buttons
+- Arcade Buttons (30mm)
   - [Green](https://www.adafruit.com/product/3487)
   - [Yellow](https://www.adafruit.com/product/3488)
   - [Red](https://www.adafruit.com/product/3489)
@@ -73,6 +73,12 @@ features light up arcade buttons that are a whole lot of fun to smash.
 
 ![TFT FeatherWing Back](https://cdn-learn.adafruit.com/assets/assets/000/125/507/large1024/featherwings_3315-10.jpg?1697817722)
 (Note that is the image of the v2. I am using the v1 model for this project.)
+
+### Arcade Buttons
+
+![Blue Button](https://cdn-shop.adafruit.com/970x728/3490-00.jpg)
+
+![Data Sheet](https://cdn-shop.adafruit.com/product-files/3490/30mm%20LED%20button%20diagram.jpeg)
 
 ## CircuitPython
 
