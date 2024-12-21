@@ -2,14 +2,18 @@ import board
 import digitalio as board_digitalio
 from adafruit_seesaw import seesaw, rotaryio, digitalio
 
+class MockI2C:
+    def __init__(self):
+        pass
+
 class MockEncoder:
     def __init__(self):
-       pass 
+        pass
 
     @property
     def position(self):
         return 0
-    
+
 class MockButton:
     def __init__(self):
         pass
@@ -22,7 +26,6 @@ class LedButton:
     def __init__(self, button, led):
         self.button = button
         self.led = led
-        pass
 
     @property 
     def value(self):
@@ -30,13 +33,22 @@ class LedButton:
 
 class Arcade:
     def __init__(self):
-        i2c = board.I2C()  # uses board.SCL and board.SDA
-        (self.encoder, self.encoder_button) = self.__load_encoder(i2c, 0x36)
+        i2c = self.__load_board()
+        (self.encoder1, self.encoder1_button) = self.__load_encoder(i2c, 0x37)
+        (self.encoder2, self.encoder2_button) = self.__load_encoder(i2c, 0x38)
         self.buttons = self.__load_buttons(i2c, addr=0x3A)
+        
+    def __load_board(self):
+        try:
+            i2c = board.I2C()  # uses board.SCL and board.SDA
+            return i2c
+        except RuntimeError as e:
+            print(e)
+            return MockI2C()
 
     def __load_buttons(self, i2c, addr):
-        def init_button(id, arcade_qt, button_pin, led_pin):
-            print("Initializing button...")
+        def init_button(idx, arcade_qt, button_pin, led_pin):
+            print(f"Initializing button {idx}...")
             button = digitalio.DigitalIO(arcade_qt, button_pin)
             button.direction = board_digitalio.Direction.INPUT
             button.pull = board_digitalio.Pull.UP
@@ -60,8 +72,8 @@ class Arcade:
                 b4,
             ]
 
-        except:
-            print("could not load buttons")
+        except (AttributeError, ValueError) as e:
+            print(f"could not load buttons: {e}")
             return [
                 MockButton(),
                 MockButton(),
@@ -72,10 +84,11 @@ class Arcade:
         
     def __load_encoder(self, i2c, addr):
         try:
+            print(f"Attempting to load encoder from address {hex(addr)}")
             ss = seesaw.Seesaw(i2c, addr)
 
             seesaw_product = (ss.get_version() >> 16) & 0xFFFF
-            print("Found product {}".format(seesaw_product))
+            print(f"Found product {seesaw_product}")
             if seesaw_product != 4991:
                 print("Wrong firmware loaded?  Expected 4991")
 
@@ -87,8 +100,8 @@ class Arcade:
             encoder = rotaryio.IncrementalEncoder(ss)
             
             return (encoder, encoder_button)
-        except:
-            print("Could not load encoder")
+        except (AttributeError, ValueError) as e:
+            print(f"Could not load encoder {e}")
 
             encoder = MockEncoder()
             encoder_button = MockButton()
@@ -96,14 +109,23 @@ class Arcade:
 
 
     @property
-    def encoder_position(self):
-        return self.encoder.position
+    def encoder1_position(self):
+        return self.encoder1.position
 
     @property
-    def encoder_pressed(self):
-        return self.encoder_button.value
+    def encoder1_pressed(self):
+        return self.encoder1_button.value
+
+    @property
+    def encoder2_position(self):
+        return self.encoder2.position
+
+    @property
+    def encoder2_pressed(self):
+        return self.encoder2_button.value
 
     def get_button_value(self, idx):
-        if (idx > 3): return False
+        if (idx > 3): 
+            return False
         
         return self.buttons[idx].value

@@ -10,7 +10,8 @@ com = Serial(screen)
 
 arcade = Arcade()
 button_held = False
-last_position = arcade.encoder_position
+last1_position = arcade.encoder1_position
+last2_position = arcade.encoder2_position
 
 screen.write("Hello World!")
 screen.write("")
@@ -63,19 +64,25 @@ print(f"Max Index: {max_idx}")
 
 while True:
     try_to_read_usb_cdc_2()
-        # negate the position to make clockwise rotation positive
-    position = arcade.encoder_position
+    # negate the position to make clockwise rotation positive
+    position1 = arcade.encoder1_position
+    position2 = arcade.encoder2_position
 
-    if position != last_position:
-        last_position = position
-        print(f"Current Position {position}")
-        show_by_idx(position)
+    if position1 != last1_position:
+        last1_position = position1
+        print(f"Current Position {position1}")
+        show_by_idx(position1)
 
-    if not arcade.encoder_pressed and not button_held:
+    if position2 != last2_position:
+        last2_position = position2
+        print(f"Current Position {position2}")
+        show_by_idx(position2)
+
+    if not arcade.encoder1_pressed and not button_held:
         button_held = True
         print("Button pressed")
 
-    if arcade.encoder_pressed and button_held:
+    if arcade.encoder1_pressed and button_held:
         button_held = False
         print("Button released")
         
