@@ -88,9 +88,34 @@ class Arcade:
                 print(e)
                 return None
 
+        def __load_encoder(i2c, addr):
+            try:
+                print(f"Attempting to load encoder from address {hex(addr)}")
+                ss = seesaw.Seesaw(i2c, addr)
+
+                seesaw_product = (ss.get_version() >> 16) & 0xFFFF
+                print(f"Found product {seesaw_product}")
+                if seesaw_product != 4991:
+                    print("Wrong firmware loaded?  Expected 4991")
+
+                # Configure seesaw pin used to read knob button presses
+                # The internal pull up is enabled to prevent floating input
+                ss.pin_mode(24, ss.INPUT_PULLUP)
+                encoder_button = digitalio.DigitalIO(ss, 24)
+
+                encoder = rotaryio.IncrementalEncoder(ss)
+
+                return (encoder, encoder_button)
+            except (AttributeError, ValueError) as e:
+                print(f"Could not load encoder {e}")
+
+            encoder = MockEncoder()
+            encoder_button = MockButton(0)
+            return (encoder, encoder_button)
+
         i2c = __load_board()
-        (self.encoder1, self.encoder1_button) = self.__load_encoder(i2c, self._LEFT_ENCODER_ADDR)
-        (self.encoder2, self.encoder2_button) = self.__load_encoder(i2c, self._RIGHT_ENCODER_ADDR)
+        (self.encoder1, self.encoder1_button) = __load_encoder(i2c, self._LEFT_ENCODER_ADDR)
+        (self.encoder2, self.encoder2_button) = __load_encoder(i2c, self._RIGHT_ENCODER_ADDR)
         self.buttons = self.__load_all_buttons(i2c)
 
     def __load_all_buttons(self, i2c):
@@ -148,31 +173,6 @@ class Arcade:
         ]
 
         return buttons
-
-    def __load_encoder(self, i2c, addr):
-        try:
-            print(f"Attempting to load encoder from address {hex(addr)}")
-            ss = seesaw.Seesaw(i2c, addr)
-
-            seesaw_product = (ss.get_version() >> 16) & 0xFFFF
-            print(f"Found product {seesaw_product}")
-            if seesaw_product != 4991:
-                print("Wrong firmware loaded?  Expected 4991")
-
-            # Configure seesaw pin used to read knob button presses
-            # The internal pull up is enabled to prevent floating input
-            ss.pin_mode(24, ss.INPUT_PULLUP)
-            encoder_button = digitalio.DigitalIO(ss, 24)
-
-            encoder = rotaryio.IncrementalEncoder(ss)
-
-            return (encoder, encoder_button)
-        except (AttributeError, ValueError) as e:
-            print(f"Could not load encoder {e}")
-
-            encoder = MockEncoder()
-            encoder_button = MockButton(0)
-            return (encoder, encoder_button)
 
     @property
     def encoder1_position(self):
