@@ -1,5 +1,5 @@
 """
-This Module is great
+This encapsulates all of the code and logic for the buttons, switches, and rotary encoders
 
 Author: Josh Quintus
 Date: December 2024

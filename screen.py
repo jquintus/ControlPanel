@@ -1,3 +1,11 @@
+"""
+This module abstracts away the hardware for the screen.
+
+You can write messages to it and send bitmaps to it.
+"""
+# pyright: reportMissingImports=false
+# pylint: disable=import-error
+
 import board
 import terminalio
 import adafruit_ili9341
@@ -6,6 +14,11 @@ from adafruit_display_text import label
 from fourwire import FourWire
 
 class Screen:
+    """
+    This class abstracts away the hardware for the screen.
+
+    You can write messages to it and send bitmaps to it.
+    """
 
     def __init__(self):
         # Release any resources currently in use for the displays
@@ -26,11 +39,16 @@ class Screen:
         self.lines = []
 
     def write(self, text):
-        if not(isinstance(text, str)):
+        """
+        Append the line of text to the bottom of the screen.
+        
+        If the screen is full of text, earlier text will pop off.
+        """
+        if not isinstance(text, str):
             return
 
         print(text)
-        self.lines.append(text);
+        self.lines.append(text)
 
         if len(self.lines) > 8:
             self.lines.pop(0)
@@ -38,19 +56,25 @@ class Screen:
         self.write2('\n'.join(self.lines))
 
     def clear(self):
+        """
+        Remove all text from the screen
+        """
         lines = []
         self.write2('\n'.join(lines))
 
 
     def write1(self, text):
+        """
+        An older write method. Consider using `screen.write(text)` instead
+        """
         self.cursor += 25
         if self.cursor > 200:
             self.cursor = 25
 
         # Draw a label
         #text_group = displayio.Group(scale=2, x=10, y=cursor)
-        text_area = label.Label(terminalio.FONT, 
-                                text=f"{text:26}", 
+        text_area = label.Label(terminalio.FONT,
+                                text=f"{text:26}",
                                 color=0xFFFFFF,
                                 background_color=0x000000)
         text_area.x = 25
@@ -60,8 +84,10 @@ class Screen:
         # splash.append(text_group)
         self.display.root_group = text_area
 
-
     def write2(self, text):
+        """
+        An older write method. Consider using `screen.write(text)` instead
+        """
         # Set text, font, and color
         color = 0xFF00FF
 
@@ -82,6 +108,9 @@ class Screen:
         self.display.root_group = text_area
 
     def show_bmp(self, filename):
+        """
+        Display the bitmap at `filename`
+        """
         # Setup the file as the bitmap data source
         bitmap = displayio.OnDiskBitmap(filename)
         # Create a TileGrid to hold the bitmap
