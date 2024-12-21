@@ -22,13 +22,9 @@ button_held = False # pylint: disable=invalid-name
 last1_position = arcade.encoder1_position
 last2_position = arcade.encoder2_position
 
-screen.write("Hello World!")
-screen.write("")
-
 com.write("hello world ;) \r\n")
 com.write_lines(bd.get_details())
 screen.write("Receiving...")
-
 
 def try_to_read_usb_cdc():
     """
