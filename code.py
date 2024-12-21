@@ -58,9 +58,9 @@ def show_by_idx(idx):
     Display the pre-loaded bitmap at the given index.
     If the index is out of bounds we handle normalizing it for you.
     """
-    idx = idx % max_idx
+    idx = idx % bmp_max_idx
 
-    print(f"Showing index {idx}: {bmp_files[idx]}")
+    print(f"Showing image index {idx}: {bmp_files[idx]}")
     show_bmp(bmp_files[idx])
 
 def show_bmp(bmp):
@@ -77,8 +77,8 @@ bmp_files = [file for file in os.listdir('/img') if file.endswith('.bmp')]
 
 show_bmp("world")
 
-max_idx = len(bmp_files)
-print(f"Max Index: {max_idx}")
+bmp_max_idx = len(bmp_files)
+print(f"Max BMP Index: {bmp_max_idx}")
 
 while True:
     try_to_read_usb_cdc()
@@ -104,6 +104,7 @@ while True:
         button_held = False # pylint: disable=invalid-name
         print("Button released")
 
-    for i in range(16):
+    for i in range(15):
         if arcade.get_button_value(i):
-            show_by_idx(i)
+            #show_by_idx(i)
+            pass
