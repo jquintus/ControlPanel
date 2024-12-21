@@ -53,9 +53,9 @@ def show_heart():
 def show_bmp(bmp):
     filename = bmp if bmp[-4:] == ".bmp" else f"{bmp}.bmp"
     if filename in bmp_files:
-        screen.show_bmp(filename)
+        screen.show_bmp('/img/' + filename)
 
-bmp_files = [file for file in os.listdir('/') if file.endswith('.bmp')]
+bmp_files = [file for file in os.listdir('/img') if file.endswith('.bmp')]
 
 show_bmp("world")
 
